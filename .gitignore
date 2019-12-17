@@ -1,1 +1,5 @@
 env/
+.gitignore1/
+.DS_Store
+.vscode
+.mypy_cache
