@@ -1,60 +1,99 @@
 from bs4 import BeautifulSoup
-from selenium import webdriver 
-from selenium.common.exceptions import  WebDriverException
+from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
+from datetime import datetime
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait 
+import re
 
 
 def get_info():
-    try:
-
-        browser = webdriver.PhantomJS(executable_path='/Users/danilasokolov/Downloads/phantomjs')
+    error = 0
+    while error < 11:
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        browser = webdriver.Chrome(executable_path='/Users/danilasokolov/Downloads/chromedriver',options=chrome_options)
+        browser.implicitly_wait(10)    
+        browser.set_page_load_timeout(10)
         browser.get('https://chaykastudia.ru/onlajn-bronirovanie/repeticionnye-komnaty/')
         html = browser.page_source
-        return html
-    except(WebDriverException):
-        print('Сетевая ошибка')
-        return False
-        
-def get_python_parser(html):
+        try:
+            soup = BeautifulSoup(html, 'html.parser')
+            tr_tag = (soup.find('tbody')).find_all('tr')
+            error = 12
+            return html
+        except(WebDriverException, AttributeError,TypeError):
+            error += 1
+            if error == 10:
+                print("Не получается получить javascript")
+            else:
+                print('Network Error')
+            return False
 
+
+def get_room_schedule(html, room_number, room_number_parsing):
+    room_number = str(room_number)
+    time_now = datetime.now().strftime('%Y-%m-%d %H:%M')
     soup = BeautifulSoup(html, 'html.parser')
-    room = soup.find('tbody') #Берем таблицу для комнаты
-    
-    try:
-        y = room.find_all('tr') # берем расписание 
-        
-        if y is not None:
-            time = room.find_all('th',class_ = 'leftcol') #Выводит время  комнаты 
-            time_list = [i.get_text() for i in time]
-            y = y[1:]
-            rooms_scajual = []
-            
-            for i in y:
-                rooms_scajual.append(i.find_all('td'))  #выводит день недели и статус комнаты 
-            
-            together_list = zip(time_list,rooms_scajual) #объединяет время с днем недели и статусом комнаты
-            
-            for i in together_list:         #печатать каждое время со статусом комнат с новой строчки
-                print(i)
-            
-            
+    room_tag = soup.find(class_=str(room_number_parsing))  # находим нашу комнату
+    tr_tag = (room_tag.find('tbody')).find_all('tr')  # ищем все тэги 'tr' 
+    schedule_list = []
+    for every_tr in tr_tag:
+        td_tag = every_tr.find_all('td')  #берем все тэги 'td', где лежит день недели и статус
+        time = every_tr.find_all('th', class_='leftcol')  # находим время репетиций 
+        time_list = [i.get_text() for i in time]        # и делаем список времени
+        for every_td in td_tag:
+            status = every_td.get('class')
+            if len(status) == 0 :
+                status.append('free')
+            #status1 = status[0].replace('','free')
+            day = every_td.get('data-wday')
+            day_format = day.replace('<span>', '')  #избавляемся от лишнего текста 
+            day_final_format = day_format.replace('</span>', '')
+            info = {
+                    'room': room_number,
+                    'time': time_list,
+                    'status': status,
+                    'day': day_final_format,
+                    'parsing time': time_now
+                    }
+            schedule_list.append(info)
+    return schedule_list
+
+
+def get_room_info(html):  #Парсим все комнаты и их описание
+    soup = BeautifulSoup(html, 'html.parser')
+    number_rooms_list = []
+    description_list = []
+    n = -1
+    for items in soup.find_all('div', class_=re.compile('^ro')):
+        number_rooms_list.append((items.get('class')[0]))
+    number_rooms_list_keys = number_rooms_list
+    for num in number_rooms_list:
+        n += 1
+        if (n % 2) == 0 or n == 0:
+            all_text = soup.find(class_=num)
+            description = all_text.find('h2')
+            description_list.append(description.get_text())
         else:
-            print('none')
-    
-    except(AttributeError):
-        print('Не спарсил')
-   
+            all_text = soup.find(class_=(num.replace((num[4]), str(n-1))))
+            description = all_text.find('h2')
+            description_list.append(description.get_text())
+    description_list_values = description_list
 
-    return soup.prettify()
-    
-  
-    
+    rooms_dict = dict(zip(number_rooms_list_keys, description_list_values))
+    return rooms_dict
 
 
-        
+def get_all_rooms_schedule():  #Выводим данные всех комнат вместе
+    html = get_info()
+    rooms = get_room_info(html)
+    final_schedule = []
+    for room1, room2 in rooms.items():
+        final_schedule += get_room_schedule(html, room2, room1)
+    print(final_schedule)
+    return final_schedule
+
+
 if __name__ == "__main__":
-    get_info()
-    html_link = get_info()
-    get_python_parser(html_link)
-    #saving = get_python_parser(html_link)
-    #with open("parsing_link.html", "w", encoding="utf8") as f:
-            #f.write(saving)
+    get_all_rooms_schedule()

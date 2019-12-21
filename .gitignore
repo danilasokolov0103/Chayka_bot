@@ -1,3 +1,6 @@
 env/
+.gitignore1/
 .DS_Store
-.gitignore1
+.vscode
+.mypy_cache
+ghostdriver.log
