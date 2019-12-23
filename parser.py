@@ -3,7 +3,10 @@ from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from datetime import datetime
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+ 
 import re
 
 
@@ -13,15 +16,17 @@ def get_info():
         chrome_options = Options()
         chrome_options.add_argument("--headless")
         browser = webdriver.Chrome(executable_path='/Users/danilasokolov/Downloads/chromedriver',options=chrome_options)
-        browser.implicitly_wait(10)    
-        browser.set_page_load_timeout(10)
+        #browser.implicitly_wait(10)    
+        #browser.set_page_load_timeout(10)
         browser.get('https://chaykastudia.ru/onlajn-bronirovanie/repeticionnye-komnaty/')
         html = browser.page_source
+        soup = BeautifulSoup(html, 'html.parser')
         try:
-            soup = BeautifulSoup(html, 'html.parser')
-            tr_tag = (soup.find('tbody')).find_all('tr')
-            error = 12
-            return html
+            element = WebDriverWait(browser, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "room1"))
+            )
+            error == 12
+            return soup
         except(WebDriverException, AttributeError,TypeError):
             error += 1
             if error == 10:
@@ -31,10 +36,9 @@ def get_info():
             return False
 
 
-def get_room_schedule(html, room_number, room_number_parsing):
+def get_room_schedule(soup, room_number, room_number_parsing):
     room_number = str(room_number)
     time_now = datetime.now().strftime('%Y-%m-%d %H:%M')
-    soup = BeautifulSoup(html, 'html.parser')
     room_tag = soup.find(class_=str(room_number_parsing))  # находим нашу комнату
     tr_tag = (room_tag.find('tbody')).find_all('tr')  # ищем все тэги 'tr' 
     schedule_list = []
@@ -61,8 +65,7 @@ def get_room_schedule(html, room_number, room_number_parsing):
     return schedule_list
 
 
-def get_room_info(html):  #Парсим все комнаты и их описание
-    soup = BeautifulSoup(html, 'html.parser')
+def get_room_info(soup):  #Парсим все комнаты и их описание
     number_rooms_list = []
     description_list = []
     n = -1
