@@ -9,13 +9,17 @@ Installing
       pip install -r requirements.txt
 Установить redis-server c помощью команд ниже:
 .. code-block:: text
-    #устанока redis-server
+Устанока redis-server
+.. code-block:: text
     $ brew install redis
-    #после установки его нужно запустить командой 
+После установки его нужно запустить командой 
+.. code-block:: text
     $ redis-server
-    #далее открываем еще 2 окна терминала и запускаем сначала celery beat ,потом celery worker 
+Далее открываем еще 2 окна терминала и запускаем сначала celery beat ,потом celery worker 
+.. code-block:: text
     celery -A periodic beat
-    
+
+.. code-block:: text
     celery -A periodic worker
 
 Настройка
