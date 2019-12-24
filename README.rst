@@ -1,8 +1,8 @@
 Chayka Bot
 ==========
-Telegram bot for practice rooms
+Телеграм бот для онлайн отслеживания расписания репетиционных комнат 
 
-Installing
+Установка 
 ----------
 Для запуска необходимо установить все библиотеки из requirements.txt
 .... code-block:: text
@@ -15,10 +15,10 @@ Installing
 После установки его нужно запустить командой 
 .. code-block:: text
     $ redis-server
-Далее открываем еще 2 окна терминала и запускаем сначала celery beat ,потом celery worker 
+Далее открываем еще 2 окна терминала и запускаем сначала celery beat  
 .. code-block:: text
     celery -A periodic beat
-
+Потом celery worker 
 .. code-block:: text
     celery -A periodic worker
 
@@ -29,5 +29,5 @@ Installing
     browser = webdriver.Chrome(executable_path='Путь к Chromedirver',options=chrome_options)
 Ниже ссылка на сам драйвер
 
-[Chromedirver](https://chromedriver.chromium.org/downloads)
+https://chromedriver.chromium.org/downloads
         
