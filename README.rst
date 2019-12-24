@@ -29,5 +29,5 @@ Installing
     browser = webdriver.Chrome(executable_path='Путь к Chromedirver',options=chrome_options)
 Ниже ссылка на сам драйвер
 
-.. Chromedirver: https://chromedriver.chromium.org/downloads
+[Chromedirver](https://chromedriver.chromium.org/downloads)
         
