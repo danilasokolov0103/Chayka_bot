@@ -6,7 +6,10 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
- 
+from creating_db import schedule_db
+from creating_db import Schedule
+from creating_db import add_to_db
+
 import re
 
 
@@ -15,7 +18,7 @@ def get_info():
     while error < 11:
         chrome_options = Options()
         chrome_options.add_argument("--headless")
-        browser = webdriver.Chrome(executable_path='/Users/danilasokolov/Downloads/chromedriver',options=chrome_options)
+        browser = webdriver.Chrome(executable_path = './chromedriver',options=chrome_options)
         #browser.implicitly_wait(10)    
         #browser.set_page_load_timeout(10)
         browser.get('https://chaykastudia.ru/onlajn-bronirovanie/repeticionnye-komnaty/')
@@ -41,7 +44,7 @@ def get_room_schedule(soup, room_number, room_number_parsing):
     time_now = datetime.now().strftime('%Y-%m-%d %H:%M')
     room_tag = soup.find(class_=str(room_number_parsing))  # находим нашу комнату
     tr_tag = (room_tag.find('tbody')).find_all('tr')  # ищем все тэги 'tr' 
-    schedule_list = []
+    # schedule_list = []
     for every_tr in tr_tag:
         td_tag = every_tr.find_all('td')  #берем все тэги 'td', где лежит день недели и статус
         time = every_tr.find_all('th', class_='leftcol')  # находим время репетиций 
@@ -54,15 +57,16 @@ def get_room_schedule(soup, room_number, room_number_parsing):
             day = every_td.get('data-wday')
             day_format = day.replace('<span>', '')  #избавляемся от лишнего текста 
             day_final_format = day_format.replace('</span>', '')
-            info = {
-                    'room': room_number,
-                    'time': time_list,
-                    'status': status,
-                    'day': day_final_format,
-                    'parsing time': time_now
-                    }
-            schedule_list.append(info)
-    return schedule_list
+            # info = {
+            #         'room': room_number,
+            #         'time': time_list,
+            #         'status': status,
+            #         'day': day_final_format,
+            #         'parsing_time': time_now
+            #         }
+            add_to_db(room_number,time_list[0], status[0], day_final_format, time_now)#добавление данных в дб
+    #return schedule_list
+    
 
 
 def get_room_info(soup):  #Парсим все комнаты и их описание
@@ -91,11 +95,12 @@ def get_room_info(soup):  #Парсим все комнаты и их описа
 def get_all_rooms_schedule():  #Выводим данные всех комнат вместе
     html = get_info()
     rooms = get_room_info(html)
-    final_schedule = []
+    # list = []
     for room1, room2 in rooms.items():
-        final_schedule += get_room_schedule(html, room2, room1)
-    print(final_schedule)
-    return final_schedule
+        # list += get_room_schedule(html, room2, room1)
+        get_room_schedule(html, room2, room1)
+    # return list
+
 
 
 if __name__ == "__main__":
