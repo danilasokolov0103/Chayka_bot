@@ -30,4 +30,7 @@ Chayka Bot
 Ниже ссылка на сам драйвер
 
 https://chromedriver.chromium.org/downloads
-        
+
+Для работы с БД нужно установить DB Browser for SQLite:
+
+https://sqlitebrowser.org/

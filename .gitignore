@@ -4,3 +4,5 @@ env/
 .vscode
 .mypy_cache
 ghostdriver.log
+__pycache__
+chromedriver
