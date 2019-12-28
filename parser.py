@@ -101,7 +101,5 @@ def get_all_rooms_schedule():  #Выводим данные всех комна�
         get_room_schedule(html, room2, room1)
     # return list
 
-
-
 if __name__ == "__main__":
     get_all_rooms_schedule()

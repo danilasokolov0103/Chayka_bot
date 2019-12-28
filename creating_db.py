@@ -41,5 +41,20 @@ def add_to_db(room, time, status, day, parsing_time):
         session.add(day_time_status)
         session.commit()
 
-for instance in session.query(Schedule).order_by(Schedule.id): 
-    print (instance.room, instance.status)
+# for instance in session.query(Schedule).order_by(Schedule.id): 
+#     print (instance.room, instance.status)
+# def get_info(prefered_time):
+#     result = []
+#     for room in session.query(Schedule).filter(Schedule.status=='free').filter(Schedule.time == prefered_time):
+#         result.append(room)
+#     return result
+
+result=[]
+def get_info(result, time):
+    for room in session.query(Schedule).filter(Schedule.room=='Репетиционная комната №1').filter(Schedule.day== 'суббота').filter(Schedule.status=='free').filter(Schedule.time==time):
+        result.append(room)
+    return result
+
+result1 = []
+result1.append(get_info(result, '9–10'))
+print(result1)

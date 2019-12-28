@@ -6,3 +6,5 @@ env/
 ghostdriver.log
 __pycache__
 chromedriver
+bot.log
+mybot/
