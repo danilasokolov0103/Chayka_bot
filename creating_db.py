@@ -4,6 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Sequence
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import aliased
+from sqlalchemy import DATETIME
 
 
 
@@ -14,11 +15,11 @@ schedule_db = declarative_base()
 class Schedule(schedule_db):
     __tablename__ = 'расписание_комнат'
     id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
-    room = Column(String, nullable=False)
-    time = Column(String, nullable=False)
-    status = Column(String, nullable=False)
-    day = Column(String, nullable=False)
-    parsing_time = Column(String, nullable=False)
+    room = Column(String, nullable=True)
+    time = Column(String, nullable=True)
+    status = Column(String, nullable=True)
+    day = Column(String, nullable=True)
+    parsing_time = Column(DATETIME, nullable=True)
     
     def __init__(self, room, time, status, day, parsing_time):
         self.room = room
@@ -31,7 +32,6 @@ class Schedule(schedule_db):
 
 # Создание таблицы
 schedule_db.metadata.create_all(engine)
-
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -49,12 +49,12 @@ def add_to_db(room, time, status, day, parsing_time):
 #         result.append(room)
 #     return result
 
-result=[]
-def get_info(result, time):
-    for room in session.query(Schedule).filter(Schedule.room=='Репетиционная комната №1').filter(Schedule.day== 'суббота').filter(Schedule.status=='free').filter(Schedule.time==time):
-        result.append(room)
-    return result
 
-result1 = []
-result1.append(get_info(result, '9–10'))
-print(result1)
+# def get_info():
+#     for room in session.query(Schedule).filter(Schedule.status=='free').filter(Schedule.time=='9–10'):
+#         print(room)
+
+# result1 = []
+# result1.append(get_info(result, '9–10'))
+# print(result1)
+# get_info()
