@@ -1,5 +1,6 @@
 import datetime
 import parser
+import creating_db
 from celery import Celery
 
 app = Celery('periodic', broker='redis://localhost:6379/0')
@@ -8,6 +9,7 @@ app = Celery('periodic', broker='redis://localhost:6379/0')
 @app.task
 def celery_schedule():
     parser.get_all_rooms_schedule()
+    creating_db.delete_expired_data
     print(datetime.datetime.now())
     return parser.get_all_rooms_schedule
 
