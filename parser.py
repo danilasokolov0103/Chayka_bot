@@ -18,17 +18,17 @@ def get_info():
     while error < 11:
         chrome_options = Options()
         chrome_options.add_argument("--headless")
-        browser = webdriver.Chrome(executable_path = './chromedriver',options=chrome_options)
-        #browser.implicitly_wait(10)    
-        #browser.set_page_load_timeout(10)
+        browser = webdriver.Chrome(executable_path='/Users/danilasokolov/Downloads/chromedriver',options=chrome_options)
         browser.get('https://chaykastudia.ru/onlajn-bronirovanie/repeticionnye-komnaty/')
-        html = browser.page_source
-        soup = BeautifulSoup(html, 'html.parser')
         try:
             element = WebDriverWait(browser, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "room1"))
             )
             error == 12
+            browser.find_element_by_class_name("nav_next").click()
+            html = browser.page_source
+            soup = BeautifulSoup(html, 'html.parser')
+                
             return soup
         except(WebDriverException, AttributeError,TypeError):
             error += 1
@@ -43,30 +43,44 @@ def get_room_schedule(soup, room_number, room_number_parsing):
     room_number = str(room_number)
     time_now = datetime.now().strftime('%Y-%m-%d %H:%M')
     room_tag = soup.find(class_=str(room_number_parsing))  # находим нашу комнату
-    tr_tag = (room_tag.find('tbody')).find_all('tr')  # ищем все тэги 'tr' 
-    # schedule_list = []
+    if  int(str(room_number_parsing[4])) % 2 == 0 or int(str(room_number_parsing[4])) == 0:   
+        room_tag_exception = soup.find(class_=str(room_number_parsing))
+    else:
+        room_tag_exception = soup.find(class_=str(room_number_parsing).replace(str(room_number_parsing[4]),str(int(str(room_number_parsing[4])) - 1)))
+    
+    tr_tag = (room_tag.find('tbody')).find_all('tr')  # ищем все тэги 'tr' 
+    #schedule_list = []
+    date_number = room_tag_exception.find('tr')
+    date_number.find_all(class_ = 'toprow')
+    day_list = [i.get_text() for i in date_number]
+    date_list = day_list[1:]
     for every_tr in tr_tag:
         td_tag = every_tr.find_all('td')  #берем все тэги 'td', где лежит день недели и статус
         time = every_tr.find_all('th', class_='leftcol')  # находим время репетиций 
         time_list = [i.get_text() for i in time]        # и делаем список времени
-        for every_td in td_tag:
+
+        for every_td,every_day in zip(td_tag,date_list):
             status = every_td.get('class')
             if len(status) == 0 :
                 status.append('free')
-            #status1 = status[0].replace('','free')
-            day = every_td.get('data-wday')
-            day_format = day.replace('<span>', '')  #избавляемся от лишнего текста 
-            day_final_format = day_format.replace('</span>', '')
-            # info = {
-            #         'room': room_number,
-            #         'time': time_list,
-            #         'status': status,
-            #         'day': day_final_format,
-            #         'parsing_time': time_now
-            #         }
-            add_to_db(room_number,time_list[0], status[0], day_final_format, time_now)#добавление данных в дб
+            day = every_day
+            day = day.replace('.',' ')
+            day = day.split()
+            date = day[0]+ " " +day[1] # Это дата 
+            day_of_week = every_td.get('data-wday')
+            day_format = day_of_week.replace('<span>', '')  #избавляемся от лишнего текста 
+            day_of_week_final_format = day_format.replace('</span>', '') # А это день недели
+            #info = {
+            #        'room': room_number,
+            #        'time': time_list,
+            #        'status': status,
+            #        'day': day,
+            #        'parsing time': time_now,
+            #        'day_of_week': day_final_format
+            #        }
+            add_to_db(room_number,time_list[0], status[0], day_of_week_final_format, date, time_now)        
+    #        schedule_list.append(info)
     #return schedule_list
-    
 
 
 def get_room_info(soup):  #Парсим все комнаты и их описание
@@ -87,7 +101,6 @@ def get_room_info(soup):  #Парсим все комнаты и их описа
             description = all_text.find('h2')
             description_list.append(description.get_text())
     description_list_values = description_list
-
     rooms_dict = dict(zip(number_rooms_list_keys, description_list_values))
     return rooms_dict
 
