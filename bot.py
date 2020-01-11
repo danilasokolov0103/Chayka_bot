@@ -1,72 +1,45 @@
 from telegram.ext import Updater
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram import ReplyKeyboardMarkup
+from creating_db import get_info
 import logging
 import ephem
 from datetime import datetime
-from creating_db import get_info
+import config
 
-
-logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s',
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
 level=logging.INFO,
 filename='bot.log'
 )
 
-PROXY = {'proxy_url': 'socks5://t1.learn.python.ru:1080',
-'urllib3_proxy_kwargs': {'username': 'learn', 'password': 'python'}}
 
-def greet_user(bot, update):
-    text = 'Привет! Хочешь узнать свободные слоты? Пиши время!'
-    print(text)
+def greet_user(update, context):
+    text = 'Привет {}! Хочешь узнать свободные слоты? Пиши время!'.format(update.message.chat.first_name)
+    logging.info(text)
+    schedule_keyboard = ReplyKeyboardMarkup([['9–10'], ['10–11'],['11–12'],['12–13'], ['13–14'], ['14–15'],['15–16'], ['16–17'], ['17–18'], ['18–19'],['19–20'], ['20–21'], ['21–24']]) 
+    update.message.reply_text(text, reply_markup=schedule_keyboard)
 
-    update.message.reply_text(text)
-
-# def talk_to_me(bot, update):
-#     user_text = update.message.text
-#     print(user_text)
-#     update.message.reply_text(user_text)
-
-def show_time(bot, update):
+def talk_to_me(update, context):
     user_text = update.message.text
-    result1 = []
-    result1.append(get_info(result1, user_text))
-    print (result1)
-    update.message.reply_text(result1)
+    logging.info(update.message)
+    answer = get_info(user_text)
+    for item in answer:
+        update.message.reply_text(item[0])
+        update.message.reply_text(item[1])
+        update.message.reply_text(item[2])
 
-# def planet_check(bot, update):
-#     m = update.message.text
-#     list1 = m.split()
-#     planet_start = list1[1]
-#     print(list1[1])
-#     if planet_start.lower() == "mars":
-#         planet_start = ephem.Mars(datetime.now())
-#     elif planet_start.lower() == "jupiter":
-#         planet_start = ephem.Jupiter(datetime.now())
-#     elif planet_start.lower() == "venus":
-#         planet_start = ephem.Venus(datetime.now())
-#     elif planet_start.lower() == "saturn":
-#         planet_start = ephem.Saturn(datetime.now())
-#     elif planet_start.lower() == "uranus":
-#         planet_start = ephem.Uranus(datetime.now())
-#     elif planet_start.lower() == "earth":
-#         planet_start = ephem.Earth(datetime.now())
-#     elif planet_start.lower() == "mercury":
-#         planet_start = ephem.Mercury(datetime.now())
-#     elif planet_start.lower() == "neptune":
-#         planet_start = ephem.Neptune(datetime.now())
-#     user_text = ephem.constellation(planet_start)
-#     print(user_text)
-#     update.message.reply_text(user_text)
 
 
 def main():
-    mybot = Updater("1051194187:AAEkERAhosD_CFNCBFE3qA6acn78hWEdVKA", request_kwargs=PROXY)
+    mybot = Updater(config.API_KEY, request_kwargs=config.PROXY, use_context=True)
 
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler("start", greet_user))
-    # dp.add_handler(MessageHandler(Filters.text, talk_to_me))
-    dp.add_handler(MessageHandler("timetable", show_time))
-    # dp.add_handler(CommandHandler("planet", planet_check))
+    dp.add_handler(MessageHandler(Filters.text, talk_to_me))
+
     mybot.start_polling()
     mybot.idle()
+    
 
-main()
+
+main() 

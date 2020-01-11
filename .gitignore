@@ -8,3 +8,6 @@ __pycache__
 chromedriver
 bot.log
 mybot/
+config.py
+schedule_db.py
+

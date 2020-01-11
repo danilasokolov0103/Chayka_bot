@@ -56,3 +56,11 @@ def delete_expired_data():
                 session.delete(instance1)
                 session.commit()
 
+def get_info(user_time):
+    data = []
+    for room in session.query(Schedule).filter(Schedule.time == user_time).filter(Schedule.status=='free'):
+            data.append([room.room, room.date, room.day])
+    return(data)
+
+# get_info('9–10')
+# print()
