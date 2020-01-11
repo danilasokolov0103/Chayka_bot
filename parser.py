@@ -38,8 +38,6 @@ def get_info():
                 print('Network Error')
             return False
 
-dt = datetime.now()
-sec_since_epoch = int (mktime(dt.timetuple()) + dt.microsecond/1000000)#это время парсинга, переведенное в обычный инт для удобства
 
 def get_room_schedule(soup, room_number, room_number_parsing):
     room_number = str(room_number)
@@ -106,14 +104,16 @@ def get_room_info(soup):  #Парсим все комнаты и их описа
     return rooms_dict
 
 
+
 def get_all_rooms_schedule():  #Выводим данные всех комнат вместе
     html = get_info()
     rooms = get_room_info(html)
-    # list = []
+    dt = datetime.now()
+    sec_since_epoch = int (mktime(dt.timetuple()) + dt.microsecond/1000000)
     for room1, room2 in rooms.items():
-        # list += get_room_schedule(html, room2, room1)
-        get_room_schedule(html, room2, room1)
-    # return list
+        get_room_schedule(html, room2, room1,sec_since_epoch)
+    delete_expired_data()
+    
 
 
 

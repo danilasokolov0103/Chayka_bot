@@ -10,4 +10,6 @@ bot.log
 mybot/
 config.py
 schedule_db.py
+celerybeat-schedule.db
+dump.rdb
 

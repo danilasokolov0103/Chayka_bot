@@ -9,7 +9,6 @@ app = Celery('periodic', broker='redis://localhost:6379/0')
 @app.task
 def celery_schedule():
     parser.get_all_rooms_schedule()
-    creating_db.delete_expired_data()
     print(datetime.datetime.now())
     return parser.get_all_rooms_schedule
 
