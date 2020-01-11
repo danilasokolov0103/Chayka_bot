@@ -9,9 +9,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from creating_db import schedule_db
 from creating_db import Schedule
 from creating_db import add_to_db
+from creating_db import delete_expired_data
 import time
 from time import mktime
 import re
+
+
 
 def get_info():
     error = 0
@@ -39,7 +42,7 @@ def get_info():
             return False
 
 
-def get_room_schedule(soup, room_number, room_number_parsing):
+def get_room_schedule(soup, room_number, room_number_parsing, sec_since_epoch):
     room_number = str(room_number)
     room_tag = soup.find(class_=str(room_number_parsing))  # находим нашу комнату
     if  int(str(room_number_parsing[4])) % 2 == 0 or int(str(room_number_parsing[4])) == 0:   
@@ -69,17 +72,9 @@ def get_room_schedule(soup, room_number, room_number_parsing):
             day_of_week = every_td.get('data-wday')
             day_format = day_of_week.replace('<span>', '')  #избавляемся от лишнего текста 
             day_of_week_final_format = day_format.replace('</span>', '') # А это день недели
-            #info = {
-            #        'room': room_number,
-            #        'time': time_list,
-            #        'status': status,
-            #        'day': day,
-            #        'parsing time': time_now,
-            #        'day_of_week': day_final_format
-            #        }
+            
             add_to_db(room_number, time_list[0], status[0], day_of_week_final_format, date,sec_since_epoch)        
-    #        schedule_list.append(info)
-    #return schedule_list
+    
 
 
 def get_room_info(soup):  #Парсим все комнаты и их описание
@@ -119,3 +114,4 @@ def get_all_rooms_schedule():  #Выводим данные всех комна�
 
 if __name__ == "__main__":
     get_all_rooms_schedule()
+    

@@ -44,15 +44,19 @@ def add_to_db(room, time, status, day, date, time_added):
         session.add(day_time_status)
         session.commit()
 
+db_elements = session.query(Schedule) #создаем список из объектов дб
 
-def delete_expired_data():
-    list_instance = session.query(Schedule) #создаем список из объектов дб
-    max_time = list_instance[0].time_added #находим ближайшее время
-    for item in (list_instance):
+def max_time():#находим ближайшее время
+    max_time = db_elements[0].time_added
+    for item in (db_elements):
         if item.time_added > max_time:
             max_time = item.time_added
-    for instance1 in list_instance: #удаляем из базы все, что не max_time
-            if  instance1.time_added != max_time:
+    return max_time
+
+def delete_expired_data():#удаляем из базы все, что не max_time
+    time = max_time()
+    for instance1 in db_elements: 
+            if  instance1.time_added != time:
                 session.delete(instance1)
                 session.commit()
 
@@ -61,6 +65,3 @@ def get_info(user_time):
     for room in session.query(Schedule).filter(Schedule.time == user_time).filter(Schedule.status=='free'):
             data.append([room.room, room.date, room.day])
     return(data)
-
-# get_info('9–10')
-# print()
