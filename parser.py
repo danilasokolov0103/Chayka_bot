@@ -43,6 +43,7 @@ def get_info():
 
 
 def get_room_schedule(soup, room_number, room_number_parsing, sec_since_epoch):
+    time_now = datetime.now().strftime('%Y-%m-%d %H:%M')
     room_number = str(room_number)
     room_tag = soup.find(class_=str(room_number_parsing))  # находим нашу комнату
     if  int(str(room_number_parsing[4])) % 2 == 0 or int(str(room_number_parsing[4])) == 0:   
@@ -73,7 +74,7 @@ def get_room_schedule(soup, room_number, room_number_parsing, sec_since_epoch):
             day_format = day_of_week.replace('<span>', '')  #избавляемся от лишнего текста 
             day_of_week_final_format = day_format.replace('</span>', '') # А это день недели
             
-            add_to_db(room_number, time_list[0], status[0], day_of_week_final_format, date,sec_since_epoch)        
+            add_to_db(room_number, time_list[0], status[0], day_of_week_final_format, date, time_now, sec_since_epoch)        
     
 
 
