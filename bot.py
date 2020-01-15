@@ -7,12 +7,17 @@ import logging
 import ephem
 from datetime import datetime
 import config
+from dotenv import load_dotenv
+import os
 
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
 level=logging.INFO,
 filename='bot.log'
 )
+
+PROXY = {'proxy_url': 'socks5://t1.learn.python.ru:1080',
+    'urllib3_proxy_kwargs': {'username': os.getenv("PROXY_username"), 'password': os.getenv("PROXY_password")}}
 
 def start(update,context):
     text = 'Привет {}! Это бот, который показывает тебе свободные слоты по времени в студии Чайка. С помощью команды /choose_room выбирай репетиционную комнату. С помощью команды /choose_day выбирай день. И команда /show_results покажет тебе свободные слоты!)'.format(update.message.chat.first_name)
@@ -70,7 +75,8 @@ def show_time(update,context):
 
 
 def main():
-    mybot = Updater(config.API_KEY, request_kwargs=config.PROXY, use_context=True)
+    load_dotenv()
+    mybot = Updater(os.getenv('API_KEY'), request_kwargs=PROXY, use_context=True)
 
     dp = mybot.dispatcher
 
@@ -83,6 +89,4 @@ def main():
     mybot.start_polling()
     mybot.idle()
     
-
-
 main() 
