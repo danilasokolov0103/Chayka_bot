@@ -12,4 +12,4 @@ config.py
 schedule_db.py
 celerybeat-schedule.db
 dump.rdb
-
+.env/

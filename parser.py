@@ -13,6 +13,7 @@ from creating_db import delete_expired_data
 import time
 from time import mktime
 import re
+import config
 
 
 
@@ -21,8 +22,8 @@ def get_info():
     while error < 11:
         chrome_options = Options()
         chrome_options.add_argument("--headless")
-        browser = webdriver.Chrome(executable_path='/Users/valeriatarasova/Downloads/chromedriver',options=chrome_options)
-        browser.get('https://chaykastudia.ru/onlajn-bronirovanie/repeticionnye-komnaty/')
+        browser = webdriver.Chrome(executable_path=config.chrome_path,options=chrome_options)
+        browser.get(config.chaika_address)
         try:
             element = WebDriverWait(browser, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "room1"))

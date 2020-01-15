@@ -63,8 +63,8 @@ def delete_expired_data():#удаляем из базы все, что не max_
                 session.delete(instance1)
                 session.commit()
 
-def get_info(user_time):
+def get_info(rep_room_number, user_day):
     data = []
-    for room in session.query(Schedule).filter(Schedule.time == user_time).filter(Schedule.status=='free'):
-            data.append([room.room, room.date, room.day])
-    return(data)
+    for room in session.query(Schedule).filter(Schedule.room == rep_room_number).filter(Schedule.day==user_day).filter(Schedule.status=='free'):
+        data.append(room.time)
+    return (data)
