@@ -9,8 +9,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from creating_db import schedule_db
 from creating_db import Schedule
 from creating_db import add_to_db
-
+from creating_db import delete_expired_data
+import time
+from time import mktime
 import re
+import settings
+
 
 
 def get_info():
@@ -18,8 +22,8 @@ def get_info():
     while error < 11:
         chrome_options = Options()
         chrome_options.add_argument("--headless")
-        browser = webdriver.Chrome(executable_path='/Users/danilasokolov/Downloads/chromedriver',options=chrome_options)
-        browser.get('https://chaykastudia.ru/onlajn-bronirovanie/repeticionnye-komnaty/')
+        browser = webdriver.Chrome(executable_path=settings.chrome_path,options=chrome_options)
+        browser.get(settings.chaika_address)
         try:
             element = WebDriverWait(browser, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "room1"))
@@ -39,17 +43,16 @@ def get_info():
             return False
 
 
-def get_room_schedule(soup, room_number, room_number_parsing):
-    room_number = str(room_number)
+def get_room_schedule(soup, room_number, room_number_parsing, sec_since_epoch):
     time_now = datetime.now().strftime('%Y-%m-%d %H:%M')
+    room_number = str(room_number)
     room_tag = soup.find(class_=str(room_number_parsing))  # находим нашу комнату
     if  int(str(room_number_parsing[4])) % 2 == 0 or int(str(room_number_parsing[4])) == 0:   
         room_tag_exception = soup.find(class_=str(room_number_parsing))
     else:
         room_tag_exception = soup.find(class_=str(room_number_parsing).replace(str(room_number_parsing[4]),str(int(str(room_number_parsing[4])) - 1)))
-    
+    schedule_list = []
     tr_tag = (room_tag.find('tbody')).find_all('tr')  # ищем все тэги 'tr' 
-    #schedule_list = []
     date_number = room_tag_exception.find('tr')
     date_number.find_all(class_ = 'toprow')
     day_list = [i.get_text() for i in date_number]
@@ -70,18 +73,18 @@ def get_room_schedule(soup, room_number, room_number_parsing):
             day_of_week = every_td.get('data-wday')
             day_format = day_of_week.replace('<span>', '')  #избавляемся от лишнего текста 
             day_of_week_final_format = day_format.replace('</span>', '') # А это день недели
-            #info = {
-            #        'room': room_number,
-            #        'time': time_list,
-            #        'status': status,
-            #        'day': day,
-            #        'parsing time': time_now,
-            #        'day_of_week': day_final_format
-            #        }
-            add_to_db(room_number,time_list[0], status[0], day_of_week_final_format, date, time_now)        
-    #        schedule_list.append(info)
-    #return schedule_list
-
+            info = {
+                    'room': room_number,
+                    'time': time_list,
+                    'status': status,
+                    'day': day,
+                    'parsing time': time_now,
+                    'day_of_week': day_of_week_final_format,
+                    'date': date
+                    }
+            add_to_db(room_number, time_list[0], status[0], day_of_week_final_format, date, time_now, sec_since_epoch)
+            schedule_list.append(info)
+    return schedule_list
 
 def get_room_info(soup):  #Парсим все комнаты и их описание
     number_rooms_list = []
@@ -105,16 +108,29 @@ def get_room_info(soup):  #Парсим все комнаты и их описа
     return rooms_dict
 
 
+
 def get_all_rooms_schedule():  #Выводим данные всех комнат вместе
     html = get_info()
     rooms = get_room_info(html)
-    # list = []
+    dt = datetime.now()
+    info_list = []
+    sec_since_epoch = int (mktime(dt.timetuple()) + dt.microsecond/1000000)
     for room1, room2 in rooms.items():
-        # list += get_room_schedule(html, room2, room1)
-        get_room_schedule(html, room2, room1)
-    # return list
+        get_room_schedule(html, room2, room1,sec_since_epoch)
+        info_list +=get_room_schedule(html, room2, room1,sec_since_epoch)
+    delete_expired_data()
+    f = open("info.txt","w")
+    f.write("Количество элементов " +str(len(info_list)))
+    f.write("\n")
+    for i in info_list:
+        f.write(str(i))
+        f.write("\n")
+    f.close()
+
+    
 
 
 
 if __name__ == "__main__":
     get_all_rooms_schedule()
+    
