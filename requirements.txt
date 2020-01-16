@@ -29,7 +29,7 @@ python-dotenv==0.10.3
 python-telegram-bot==12.2.0
 pytz==2019.3
 redis==3.3.11
-requests==2.7.0
+requests==2.20.0
 selenium==3.141.0
 six==1.12.0
 soupsieve==1.9.5
