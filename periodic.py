@@ -16,7 +16,7 @@ def celery_schedule():
 app.conf.beat_schedule = {
     "get_shedule_every_30minutes_task": {
         "task": "periodic.celery_schedule",
-        "schedule": 40.0 
+        "schedule": 1800.0 
     }
 }
 
