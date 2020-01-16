@@ -14,3 +14,4 @@ schedule_db.py
 celerybeat-schedule.db
 dump.rdb
 .env
+info.txt
