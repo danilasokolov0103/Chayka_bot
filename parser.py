@@ -22,6 +22,8 @@ def get_info():
     while error < 11:
         chrome_options = Options()
         chrome_options.add_argument("--headless")
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')
         browser = webdriver.Chrome(executable_path=settings.chrome_path,options=chrome_options)
         browser.get(settings.chaika_address)
         try:
@@ -122,11 +124,13 @@ def get_all_rooms_schedule():  #Выводим данные всех комна�
     f = open("info.txt","w")
     f.write("Количество элементов " +str(len(info_list)))
     f.write("\n")
-    for i in info_list:
-        f.write(str(i))
-        f.write("\n")
+    f.write(str(dt))
+    f.write("\n")
     f.close()
-
+    data = open("parsing_data","w")
+    for i in info_list:
+        data.write(i)
+    data.close
     
 
 
