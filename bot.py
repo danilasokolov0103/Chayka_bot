@@ -5,9 +5,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from creating_db import get_info
 import logging
 from datetime import datetime
-from dotenv import load_dotenv
-import os
-load_dotenv()
+import settings
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
 level=logging.INFO,
@@ -15,7 +13,7 @@ filename='bot.log'
 )
 
 PROXY = {'proxy_url': 'socks5h://t1.learn.python.ru:1080',
-    'urllib3_proxy_kwargs': {'username': os.getenv("PROXY_username"), 'password': os.getenv("PROXY_password")}}
+    'urllib3_proxy_kwargs': {'username': settings.PROXY_username, 'password': settings.PROXY_password}}
 
 def start(update,context):
     text = 'Привет {}! Это бот, который показывает тебе свободные слоты по времени в студии Чайка. С помощью команды /choose_room выбирай репетиционную комнату. С помощью команды /choose_day выбирай день. И команда /show_results покажет тебе свободные слоты!)'.format(update.message.chat.first_name)
@@ -73,7 +71,7 @@ def show_time(update,context):
 
 
 def main():
-    mybot = Updater(os.getenv('API_KEY'), request_kwargs=PROXY, use_context=True)
+    mybot = Updater(settings.API_KEY, request_kwargs=PROXY, use_context=True)
 
     dp = mybot.dispatcher
 
