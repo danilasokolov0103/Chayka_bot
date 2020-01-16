@@ -1,4 +1,5 @@
 env/
+schedule_db.db
 .gitignore1/
 .DS_Store
 .vscode
@@ -6,3 +7,10 @@ env/
 ghostdriver.log
 __pycache__
 chromedriver
+bot.log
+mybot/
+config.py
+schedule_db.py
+celerybeat-schedule.db
+dump.rdb
+.env
