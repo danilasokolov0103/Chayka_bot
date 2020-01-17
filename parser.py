@@ -53,7 +53,7 @@ def get_room_schedule(soup, room_number, room_number_parsing, sec_since_epoch):
         room_tag_exception = soup.find(class_=str(room_number_parsing))
     else:
         room_tag_exception = soup.find(class_=str(room_number_parsing).replace(str(room_number_parsing[4]),str(int(str(room_number_parsing[4])) - 1)))
-    schedule_list = []
+    #schedule_list = []
     tr_tag = (room_tag.find('tbody')).find_all('tr')  # ищем все тэги 'tr' 
     date_number = room_tag_exception.find('tr')
     date_number.find_all(class_ = 'toprow')
@@ -75,18 +75,18 @@ def get_room_schedule(soup, room_number, room_number_parsing, sec_since_epoch):
             day_of_week = every_td.get('data-wday')
             day_format = day_of_week.replace('<span>', '')  #избавляемся от лишнего текста 
             day_of_week_final_format = day_format.replace('</span>', '') # А это день недели
-            info = {
-                    'room': room_number,
-                    'time': time_list,
-                    'status': status,
-                    'day': day,
-                    'parsing time': time_now,
-                    'day_of_week': day_of_week_final_format,
-                    'date': date
-                    }
+            #info = {
+            #        'room': room_number,
+            #        'time': time_list,
+            #        'status': status,
+            #        'day': day,
+            #        'parsing time': time_now,
+            #        'day_of_week': day_of_week_final_format,
+            #        'date': date
+            #        }
             add_to_db(room_number, time_list[0], status[0], day_of_week_final_format, date, time_now, sec_since_epoch)
-            schedule_list.append(info)
-    return schedule_list
+            #schedule_list.append(info)
+    #return schedule_list
 
 def get_room_info(soup):  #Парсим все комнаты и их описание
     number_rooms_list = []
@@ -115,23 +115,18 @@ def get_all_rooms_schedule():  #Выводим данные всех комна�
     html = get_info()
     rooms = get_room_info(html)
     dt = datetime.now()
-    info_list = []
+    #info_list = []
     sec_since_epoch = int (mktime(dt.timetuple()) + dt.microsecond/1000000)
     for room1, room2 in rooms.items():
         get_room_schedule(html, room2, room1,sec_since_epoch)
-        info_list +=get_room_schedule(html, room2, room1,sec_since_epoch)
+        #info_list +=get_room_schedule(html, room2, room1,sec_since_epoch)
     delete_expired_data()
-    f = open("info.txt","w")
-    f.write("Количество элементов " +str(len(info_list)))
-    f.write("\n")
-    f.write(str(dt))
-    f.write("\n")
-    f.close()
-    data = open("parsing_data","w")
-    for i in info_list:
-        data.write(i)
-    data.close
-    
+    #f = open("info.txt","w")
+    #f.write("Количество элементов " +str(len(info_list)))
+    #f.write("\n")
+    #f.write(str(dt))
+    #f.write("\n")
+    #f.close()
 
 
 
