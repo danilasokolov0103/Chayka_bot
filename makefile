@@ -1,7 +1,5 @@
 do_all:
-		make -j 4 packages redis celery_beat celery_worker bot
-packages:	
-		pip3 install -r requirements.txt
+		make -j 4  redis celery_beat celery_worker bot
 redis:
 		redis-server
 celery_beat:
