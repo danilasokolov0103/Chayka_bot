@@ -14,7 +14,6 @@ from dotenv import load_dotenv
 import time
 from time import mktime
 import re
-import config
 import os
 
 

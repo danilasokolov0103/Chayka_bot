@@ -6,7 +6,6 @@ from creating_db import get_info
 import logging
 import ephem
 from datetime import datetime
-import config
 from dotenv import load_dotenv
 import os
 
@@ -17,7 +16,7 @@ filename='bot.log'
 )
 
 PROXY = {'proxy_url': 'socks5://t1.learn.python.ru:1080',
-    'urllib3_proxy_kwargs': {'username': os.getenv("PROXY_username"), 'password': os.getenv("PROXY_password")}}
+    'urllib3_proxy_kwargs': {'username': "learn", 'password': "python"}}
 
 def start(update,context):
     text = 'Привет {}! Это бот, который показывает тебе свободные слоты по времени в студии Чайка. С помощью команды /choose_room выбирай репетиционную комнату. С помощью команды /choose_day выбирай день. И команда /show_results покажет тебе свободные слоты!)'.format(update.message.chat.first_name)
@@ -69,6 +68,7 @@ def show_time(update,context):
     text = 'Вот что есть на данный момент'
     answer = get_info(chosen_room[0], chosen_day[0])
     update.message.reply_text(text)
+    logging.info("User: {}, Chat id: {}, Message: {}".format(update.message.chat.username,update.message.chat.id,update.message.text))
     for item in answer:
         update.message.reply_text(item)
 
@@ -76,7 +76,7 @@ def show_time(update,context):
 
 def main():
     load_dotenv()
-    mybot = Updater(os.getenv('API_KEY'), request_kwargs=PROXY, use_context=True)
+    mybot = Updater(os.getenv('Test_API_KEY'), request_kwargs=PROXY, use_context=True)
 
     dp = mybot.dispatcher
 
