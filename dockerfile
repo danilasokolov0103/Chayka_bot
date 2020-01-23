@@ -13,10 +13,8 @@ WORKDIR /usr/src/my_app_directory
 
 # Копируем код из локального контекста в рабочую директорию образа
 COPY . .
-# Задаём значение по умолчанию для переменной
-ARG my_var=my_default_value
-# Настраиваем команду, которая должна быть запущена в контейнере во время его выполнения
-#ENTRYPOINT ["celery", "-A", "periodic", "beat"]
+
+
 RUN pip install -r requirements.txt
 # Открываем порты
 EXPOSE 8000
