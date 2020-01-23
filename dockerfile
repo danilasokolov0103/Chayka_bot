@@ -7,8 +7,10 @@ RUN apt-get install -y gconf-service libasound2 libatk1.0-0 libcairo2 libcups2 l
 RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 RUN dpkg -i google-chrome-stable_current_amd64.deb; apt-get -fy install
 
-# Задаём текущую рабочую директорию
+# Задаём текущую рабочую 
+ADD . /usr/src/my_app_directory
 WORKDIR /usr/src/my_app_directory
+
 # Копируем код из локального контекста в рабочую директорию образа
 COPY . .
 # Задаём значение по умолчанию для переменной

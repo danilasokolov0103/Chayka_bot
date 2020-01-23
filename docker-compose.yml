@@ -1,11 +1,11 @@
-version: '3.6'  
-volumes:
-    staticfiles: {}
+version: '3.2'  
+
+    
 services:  
   parser:
     image: parser
-    volumes:
-             - staticfiles:/projects                   
+    #volumes:
+     # - data-volume:var/lib/usr/src/my_app_directory                  
     depends_on:
       - redis
     environment:
@@ -17,8 +17,11 @@ services:
     image: redis:3.2-alpine
 
   #bot:
-    #image: bot
+   # image: bot
     #links: 
      #   - parser
-    #volumes:
-     #   - staticfiles:/projects
+    #volumes: 
+     #   - data-volume:var/lib/usr/src/my_app_directory         
+#volumes:
+ #data-volume:
+   
