@@ -10,21 +10,34 @@ from creating_db import schedule_db
 from creating_db import Schedule
 from creating_db import add_to_db
 from creating_db import delete_expired_data
+from creating_db import get_log
 import time
 from time import mktime
 import re
 import settings
+import chromedriver_binary
+import logging
+
+
+def create_logger():
+      logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
+        level=logging.INFO,
+        filename='parser.log'
+        )
 
 
 
 def get_info():
+
     error = 0
     while error < 11:
         chrome_options = Options()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
-        browser = webdriver.Chrome(executable_path=settings.chrome_path,options=chrome_options)
+        chrome_options.add_argument("window-size=1400,2100") 
+        chrome_options.add_argument('--disable-gpu')
+        browser = webdriver.Chrome(options=chrome_options)
         browser.get(settings.chaika_address)
         try:
             element = WebDriverWait(browser, 10).until(
@@ -34,14 +47,17 @@ def get_info():
             browser.find_element_by_class_name("nav_next").click()
             html = browser.page_source
             soup = BeautifulSoup(html, 'html.parser')
+            logging.info("Selenium is working fine")
                 
             return soup
         except(WebDriverException, AttributeError,TypeError):
             error += 1
             if error == 10:
                 print("Не получается получить javascript")
+                logging.info('Problems with getting javascript')
             else:
                 print('Network Error')
+                logging.info('Connection problems')
             return False
 
 
@@ -68,6 +84,7 @@ def get_room_schedule(soup, room_number, room_number_parsing, sec_since_epoch):
             status = every_td.get('class')
             if len(status) == 0 :
                 status.append('free')
+    
             day = every_day
             day = day.replace('.',' ')
             day = day.split()
@@ -112,21 +129,22 @@ def get_room_info(soup):  #Парсим все комнаты и их описа
 
 
 def get_all_rooms_schedule():  #Выводим данные всех комнат вместе
+    
+    create_logger()
     html = get_info()
     rooms = get_room_info(html)
     dt = datetime.now()
-    #info_list = []
+    
     sec_since_epoch = int (mktime(dt.timetuple()) + dt.microsecond/1000000)
     for room1, room2 in rooms.items():
         get_room_schedule(html, room2, room1,sec_since_epoch)
-        #info_list +=get_room_schedule(html, room2, room1,sec_since_epoch)
+    logging.info('Parsed to DataBase')
     delete_expired_data()
-    #f = open("info.txt","w")
-    #f.write("Количество элементов " +str(len(info_list)))
-    #f.write("\n")
-    #f.write(str(dt))
-    #f.write("\n")
-    #f.close()
+    logging.info('Deleted expired data')
+
+    logging.info('Number of rows in database = '+get_log())
+    logging.info('Parsing time ---- '+str(dt))
+  
 
 
 

@@ -14,6 +14,7 @@ engine = create_engine('sqlite:///schedule_db.db', echo=False)
 schedule_db = declarative_base()
 class Schedule(schedule_db):
     __tablename__ = 'расписание_комнат'
+    __mapper_args__ ={'confirm_deleted_rows': False}
     id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
     room = Column(String, nullable=True)
     time = Column(String, nullable=True)
@@ -46,6 +47,7 @@ def add_to_db(room, time, status, day, date, parsing_time, parsing_time_int):
         day_time_status = Schedule(room= room, time = time, status = status, day = day, date = date, parsing_time = parsing_time, parsing_time_int = parsing_time_int)
         session.add(day_time_status)
         session.commit()
+        
 
 db_elements = session.query(Schedule) #создаем список из объектов дб
 
@@ -68,3 +70,14 @@ def get_info(rep_room_number, user_day):
     for room in session.query(Schedule).filter(Schedule.room == rep_room_number).filter(Schedule.day==user_day).filter(Schedule.status=='free'):
         data.append(room.time)
     return (data)
+
+def get_log():
+    f = open("logs.txt","w")
+    num = 0 
+    for i in db_elements:
+        f.write(str(i))
+        f.write("/n")
+        num += 1
+    f.write(str(num))
+    f.close
+    return(str(num))
