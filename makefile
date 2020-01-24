@@ -3,7 +3,7 @@ do_all:
 #redis:
 #		redis-server
 celery_beat:
-			celery -A periodic beat 
+			celery -A periodic beat -l info --pidfile=/tmp/celeryd.pid
 celery_worker:
 			celery -A periodic worker 
 #bot:

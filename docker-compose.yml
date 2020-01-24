@@ -3,7 +3,9 @@ version: '3.2'
     
 services:  
   parser:
-    image: parser
+    #image: parser
+    build: 
+      context: ./
     volumes:
       - data-volume:/parser
     depends_on:   
@@ -17,7 +19,9 @@ services:
     image: redis:3.2-alpine
 
   bot:
-    image: bot
+    #image: bot
+    build: 
+      context: ./docker/bot
     depends_on: 
       - redis
 
