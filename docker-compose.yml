@@ -1,4 +1,4 @@
-version: '3.2'  
+version: '3.6'  
 
     
 services:  
@@ -6,6 +6,8 @@ services:
     #image: parser
     build: 
       context: ./
+    command: bash -c "make"
+      #working_dir: /parser
     volumes:
       - data-volume:/parser
     depends_on:   
@@ -22,6 +24,7 @@ services:
     #image: bot
     build: 
       context: ./docker/bot
+    #working_dir: /bot
     depends_on: 
       - redis
 
