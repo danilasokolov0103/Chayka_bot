@@ -8,18 +8,18 @@ RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.d
 RUN dpkg -i google-chrome-stable_current_amd64.deb; apt-get -fy install
 
 # Задаём текущую рабочую 
-ADD . /usr/src/my_app_directory
-WORKDIR /usr/src/my_app_directory
+RUN mkdir parser
+ADD . /parser
+WORKDIR /parser
 
 # Копируем код из локального контекста в рабочую директорию образа
-COPY . .
+COPY . /parser
 
 
 RUN pip install -r requirements.txt
 # Открываем порты
 EXPOSE 8000
-# Создаём том для хранения данных
-VOLUME /my_volume
+
 
 
 

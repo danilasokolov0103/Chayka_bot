@@ -4,9 +4,9 @@ version: '3.2'
 services:  
   parser:
     image: parser
-    #volumes:
-     # - data-volume:var/lib/usr/src/my_app_directory                  
-    depends_on:
+    volumes:
+      - data-volume:/parser
+    depends_on:   
       - redis
     environment:
       - REDIS_HOST=redis
@@ -16,12 +16,16 @@ services:
   redis:
     image: redis:3.2-alpine
 
-  #bot:
-   # image: bot
+  bot:
+    image: bot
+    depends_on: 
+      - redis
+
     #links: 
-     #   - parser
-    #volumes: 
-     #   - data-volume:var/lib/usr/src/my_app_directory         
-#volumes:
- #data-volume:
+    #   - parser
+    volumes: 
+       - data-volume:/bot
+volumes:
+ data-volume: 
+    external: true
    
