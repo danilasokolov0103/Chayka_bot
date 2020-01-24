@@ -4,19 +4,29 @@ from telegram import ReplyKeyboardMarkup
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from creating_db import get_info
 import logging
+<<<<<<< HEAD
 import ephem
 from datetime import datetime
 from dotenv import load_dotenv
 import os
 
+=======
+from datetime import datetime
+import settings
+>>>>>>> 4acad1db3a0b631a2b391011199bb38f0fc7eec9
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
 level=logging.INFO,
 filename='bot.log'
 )
 
+<<<<<<< HEAD
 PROXY = {'proxy_url': 'socks5://t1.learn.python.ru:1080',
     'urllib3_proxy_kwargs': {'username': "learn", 'password': "python"}}
+=======
+PROXY = {'proxy_url': 'socks5h://t1.learn.python.ru:1080',
+    'urllib3_proxy_kwargs': {'username': settings.PROXY_username, 'password': settings.PROXY_password}}
+>>>>>>> 4acad1db3a0b631a2b391011199bb38f0fc7eec9
 
 def start(update,context):
     text = 'Привет {}! Это бот, который показывает тебе свободные слоты по времени в студии Чайка. С помощью команды /choose_room выбирай репетиционную комнату. С помощью команды /choose_day выбирай день. И команда /show_results покажет тебе свободные слоты!)'.format(update.message.chat.first_name)
@@ -68,15 +78,22 @@ def show_time(update,context):
     text = 'Вот что есть на данный момент'
     answer = get_info(chosen_room[0], chosen_day[0])
     update.message.reply_text(text)
+<<<<<<< HEAD
     logging.info("User: {}, Chat id: {}, Message: {}".format(update.message.chat.username,update.message.chat.id,update.message.text))
+=======
+>>>>>>> 4acad1db3a0b631a2b391011199bb38f0fc7eec9
     for item in answer:
         update.message.reply_text(item)
 
 
 
 def main():
+<<<<<<< HEAD
     load_dotenv()
     mybot = Updater(os.getenv('Test_API_KEY'), request_kwargs=PROXY, use_context=True)
+=======
+    mybot = Updater(settings.API_KEY, request_kwargs=PROXY, use_context=True)
+>>>>>>> 4acad1db3a0b631a2b391011199bb38f0fc7eec9
 
     dp = mybot.dispatcher
 

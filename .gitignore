@@ -1,4 +1,5 @@
 env/
+schedule_db.db
 .gitignore1/
 .DS_Store
 .vscode
@@ -12,4 +13,9 @@ config.py
 schedule_db.py
 celerybeat-schedule.db
 dump.rdb
+<<<<<<< HEAD
 .env
+=======
+.env
+info.txt
+>>>>>>> 4acad1db3a0b631a2b391011199bb38f0fc7eec9
