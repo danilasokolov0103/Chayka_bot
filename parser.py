@@ -20,10 +20,10 @@ import logging
 
 
 def create_logger():
-      logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
-        level=logging.INFO,
-        filename='parser.log'
-        )
+    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
+    level = logging.INFO,
+    filename ='parser.log'
+    )
 
 
 
@@ -50,7 +50,7 @@ def get_info():
             logging.info("Selenium is working fine")
                 
             return soup
-        except(WebDriverException, AttributeError,TypeError):
+        except(WebDriverException, AttributeError, TypeError):
             error += 1
             if error == 10:
                 print("Не получается получить javascript")
@@ -69,10 +69,9 @@ def get_room_schedule(soup, room_number, room_number_parsing, sec_since_epoch):
         room_tag_exception = soup.find(class_=str(room_number_parsing))
     else:
         room_tag_exception = soup.find(class_=str(room_number_parsing).replace(str(room_number_parsing[4]),str(int(str(room_number_parsing[4])) - 1)))
-    #schedule_list = []
     tr_tag = (room_tag.find('tbody')).find_all('tr')  # ищем все тэги 'tr' 
     date_number = room_tag_exception.find('tr')
-    date_number.find_all(class_ = 'toprow')
+    date_number.find_all(class_='toprow')
     day_list = [i.get_text() for i in date_number]
     date_list = day_list[1:]
     for every_tr in tr_tag:
@@ -80,32 +79,22 @@ def get_room_schedule(soup, room_number, room_number_parsing, sec_since_epoch):
         time = every_tr.find_all('th', class_='leftcol')  # находим время репетиций 
         time_list = [i.get_text() for i in time]        # и делаем список времени
 
-        for every_td,every_day in zip(td_tag,date_list):
+        for every_td, every_day in zip(td_tag, date_list):
             status = every_td.get('class')
             if len(status) == 0 :
                 status.append('free')
     
             day = every_day
-            day = day.replace('.',' ')
+            day = day.replace('.', ' ')
             day = day.split()
-            date = day[0]+ " " +day[1] # Это дата 
+            date = day[0] + " " + day[1]  # Это дата 
             day_of_week = every_td.get('data-wday')
-            day_format = day_of_week.replace('<span>', '')  #избавляемся от лишнего текста 
-            day_of_week_final_format = day_format.replace('</span>', '') # А это день недели
-            #info = {
-            #        'room': room_number,
-            #        'time': time_list,
-            #        'status': status,
-            #        'day': day,
-            #        'parsing time': time_now,
-            #        'day_of_week': day_of_week_final_format,
-            #        'date': date
-            #        }
+            day_format = day_of_week.replace('<span>', '')   #избавляемся от лишнего текста 
+            day_of_week_final_format = day_format.replace('</span>', '')  # А это день недели
             add_to_db(room_number, time_list[0], status[0], day_of_week_final_format, date, time_now, sec_since_epoch)
-            #schedule_list.append(info)
-    #return schedule_list
+   
 
-def get_room_info(soup):  #Парсим все комнаты и их описание
+def get_room_info(soup):   #Парсим все комнаты и их описание
     number_rooms_list = []
     description_list = []
     n = -1
@@ -128,16 +117,16 @@ def get_room_info(soup):  #Парсим все комнаты и их описа
 
 
 
-def get_all_rooms_schedule():  #Выводим данные всех комнат вместе
-    
+def get_all_rooms_schedule():   #Выводим данные всех комнат вместе
+
     create_logger()
     html = get_info()
     rooms = get_room_info(html)
     dt = datetime.now()
     
-    sec_since_epoch = int (mktime(dt.timetuple()) + dt.microsecond/1000000)
+    sec_since_epoch = int(mktime(dt.timetuple()) + dt.microsecond/1000000)
     for room1, room2 in rooms.items():
-        get_room_schedule(html, room2, room1,sec_since_epoch)
+        get_room_schedule(html, room2, room1, sec_since_epoch)
     logging.info('Parsed to DataBase')
     delete_expired_data()
     logging.info('Deleted expired data')

@@ -15,24 +15,27 @@ filename='bot.log'
 PROXY = {'proxy_url': 'socks5h://t1.learn.python.ru:1080',
     'urllib3_proxy_kwargs': {'username': settings.PROXY_username, 'password': settings.PROXY_password}}
 
-def start(update,context):
+
+def start(update, context):
     text = 'Привет {}! Это бот, который показывает тебе свободные слоты по времени в студии Чайка. С помощью команды /choose_room выбирай репетиционную комнату. С помощью команды /choose_day выбирай день. И команда /show_results покажет тебе свободные слоты!)'.format(update.message.chat.first_name)
     update.message.reply_text(text)
-    
+
+
 def choose_room(update, context):
     text = 'Выбирай репитиционную комнату, посмотрим какие слоты там свободны!'
     logging.info(text)
-    keyboard = [ [InlineKeyboardButton("реп.комната №1", callback_data='Репетиционная комната №1'),
+    keyboard = [[InlineKeyboardButton("реп.комната №1", callback_data='Репетиционная комната №1'),
                  InlineKeyboardButton("реп.комната №2", callback_data='Репетиционная комната №2')],
 
-                 [InlineKeyboardButton("реп.комната №3", callback_data='Репетиционная комната №3'),
-                  InlineKeyboardButton("реп. комната №4", callback_data='Репетиционная комната №4')]]
+                [InlineKeyboardButton("реп.комната №3", callback_data='Репетиционная комната №3'),
+                InlineKeyboardButton("реп. комната №4", callback_data='Репетиционная комната №4')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text(text,reply_markup=reply_markup)
+    update.message.reply_text(text, reply_markup=reply_markup)
+
 
 def choose_day(update, context):
 
-    keyboard = [[InlineKeyboardButton("понеделльник", callback_data='понедельник'),
+    keyboard = [[InlineKeyboardButton("понедельник", callback_data='понедельник'),
                  InlineKeyboardButton("вторник", callback_data='вторник')],
 
                 [InlineKeyboardButton("среда", callback_data='среда'),
@@ -46,8 +49,10 @@ def choose_day(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text('Теперь выбери день недели', reply_markup=reply_markup)
 
+
 chosen_room = []
 chosen_day = []
+
 
 def choice(update, context):
     query = update.callback_query
@@ -61,13 +66,12 @@ def choice(update, context):
         query.edit_message_text(text="Ты выбрал: {}".format(chosen_day[0]))
 
 
-def show_time(update,context):
+def show_time(update, context):
     text = 'Вот что есть на данный момент'
     answer = get_info(chosen_room[0], chosen_day[0])
     update.message.reply_text(text)
     for item in answer:
         update.message.reply_text(item)
-
 
 
 def main():
@@ -83,5 +87,6 @@ def main():
     
     mybot.start_polling()
     mybot.idle()
-    
+
+
 main() 
