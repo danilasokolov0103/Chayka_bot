@@ -23,7 +23,7 @@ logger.addHandler(sh)
 @app.task
 def celery_schedule():
     parser.get_all_rooms_schedule()
-    logging.info("Done task")
+    logging.info("Task is done")
     print(datetime.datetime.now())
     return parser.get_all_rooms_schedule
 
@@ -31,7 +31,7 @@ def celery_schedule():
 app.conf.beat_schedule = {
     "get_shedule_every_30minutes_task": {
         "task": "periodic.celery_schedule",
-        "schedule": 60.0 
+        "schedule": 300.0 
     }
 }
 

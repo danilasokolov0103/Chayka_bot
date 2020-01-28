@@ -44,7 +44,6 @@ def get_info():
                 EC.presence_of_element_located((By.CLASS_NAME, "room1"))
             )
             error == 12
-            browser.find_element_by_class_name("nav_next").click()
             html = browser.page_source
             soup = BeautifulSoup(html, 'html.parser')
             logging.info("Selenium is working fine")
