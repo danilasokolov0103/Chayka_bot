@@ -2,38 +2,31 @@ from telegram.ext import Updater
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, RegexHandler
 from telegram import ReplyKeyboardMarkup
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from creating_db import get_info
+from creating_db import get_info_this_week
+from creating_db import get_info_next_week
 import logging
-<<<<<<< HEAD
-import ephem
-from datetime import datetime
-from dotenv import load_dotenv
-import os
-
-=======
 from datetime import datetime
 import settings
->>>>>>> 4acad1db3a0b631a2b391011199bb38f0fc7eec9
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
 level=logging.INFO,
 filename='bot.log'
 )
 
-<<<<<<< HEAD
-PROXY = {'proxy_url': 'socks5://t1.learn.python.ru:1080',
-    'urllib3_proxy_kwargs': {'username': "learn", 'password': "python"}}
-=======
 PROXY = {'proxy_url': 'socks5h://t1.learn.python.ru:1080',
     'urllib3_proxy_kwargs': {'username': settings.PROXY_username, 'password': settings.PROXY_password}}
->>>>>>> 4acad1db3a0b631a2b391011199bb38f0fc7eec9
 
 def start(update,context):
-    text = 'Привет {}! Это бот, который показывает тебе свободные слоты по времени в студии Чайка. С помощью команды /choose_room выбирай репетиционную комнату. С помощью команды /choose_day выбирай день. И команда /show_results покажет тебе свободные слоты!)'.format(update.message.chat.first_name)
+    text = 'Привет {}! Это бот, который показывает тебе свободные слоты по времени в студии Чайка. С помощью команды /choose_room выбирай репетиционную комнату. С помощью команды /choose_day выбирай день. И команда /show_results покажет тебе свободные сеты на текущую и следующую недели!)'.format(update.message.chat.first_name)
+    command_keyboard = ReplyKeyboardMarkup([['/choose_room'],['/choose_day'],['/choose_week'], ['/show_results'], ['/help'] ])
+    update.message.reply_text(text, reply_markup=command_keyboard)
+
+def help(update,context):
+    text = 'Привет {}! Это бот, который показывает тебе свободные слоты по времени в студии Чайка. С помощью команды /choose_room выбирай репетиционную комнату. С помощью команды /choose_day выбирай день. И команда /show_results покажет тебе свободные сеты на текущую и следующую недели!)'.format(update.message.chat.first_name)
     update.message.reply_text(text)
-    
+
 def choose_room(update, context):
-    text = 'Выбирай репитиционную комнату, посмотрим какие слоты там свободны!'
+    text = 'Выбирай репитиционную комнату, посмотрим какие сеты там свободны!'
     logging.info(text)
     keyboard = [ [InlineKeyboardButton("реп.комната №1", callback_data='Репетиционная комната №1'),
                  InlineKeyboardButton("реп.комната №2", callback_data='Репетиционная комната №2')],
@@ -45,7 +38,7 @@ def choose_room(update, context):
 
 def choose_day(update, context):
 
-    keyboard = [[InlineKeyboardButton("понеделльник", callback_data='понедельник'),
+    keyboard = [[InlineKeyboardButton("понедельник", callback_data='понедельник'),
                  InlineKeyboardButton("вторник", callback_data='вторник')],
 
                 [InlineKeyboardButton("среда", callback_data='среда'),
@@ -59,8 +52,16 @@ def choose_day(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text('Теперь выбери день недели', reply_markup=reply_markup)
 
+def choose_week(update, context):
+    keyboard = [[InlineKeyboardButton("Текущая неделя", callback_data='Текущая неделя'),
+                 InlineKeyboardButton("Следующая неделя", callback_data='Следующая неделя')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text('ну если хочешь, можешь выбраь неделю)', reply_markup = reply_markup)
+
 chosen_room = []
 chosen_day = []
+chosen_week = []
+week_days = ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье']
 
 def choice(update, context):
     query = update.callback_query
@@ -68,39 +69,66 @@ def choice(update, context):
         chosen_room.clear()
         chosen_room.append(query.data)
         query.edit_message_text(text="Ты выбрал: {}".format(chosen_room[0]))
-    else:
+
+    elif query.data in week_days:
         chosen_day.clear()
         chosen_day.append(query.data)
         query.edit_message_text(text="Ты выбрал: {}".format(chosen_day[0]))
 
+    elif query.data == "Текущая неделя" or query.data == "Следующая неделя":
+            chosen_week.clear()
+            chosen_week.append(query.data)
+            query.edit_message_text(text="Ты выбрал: {}".format(chosen_week[0]))
+    else:
+        chosen_week.clear()
+            
+
 
 def show_time(update,context):
-    text = 'Вот что есть на данный момент'
-    answer = get_info(chosen_room[0], chosen_day[0])
-    update.message.reply_text(text)
-<<<<<<< HEAD
-    logging.info("User: {}, Chat id: {}, Message: {}".format(update.message.chat.username,update.message.chat.id,update.message.text))
-=======
->>>>>>> 4acad1db3a0b631a2b391011199bb38f0fc7eec9
-    for item in answer:
-        update.message.reply_text(item)
-
+    if len(chosen_week) == 0:
+        answer_this_week = get_info_this_week(chosen_room[0], chosen_day[0])
+        answer_next_week = get_info_next_week(chosen_room[0], chosen_day[0])
+        if len(answer_this_week)== 0:
+            update.message.reply_text('На этой неделе этот день уже прошел, либо нет свободных сетов, вот что есть на следующей неделе в этот день:')
+            for item in answer_next_week:
+                update.message.reply_text(item)
+        else:
+            update.message.reply_text('Вот что есть на этой неделе:')
+            for item in answer_this_week:
+                update.message.reply_text(item)
+            update.message.reply_text('Вот что есть на следующей неделе:')
+            for item in answer_next_week:
+                update.message.reply_text(item)
+    else:
+        if chosen_week[0] == 'Текущая неделя':
+            answer_this_week = get_info_this_week(chosen_room[0],chosen_day[0])
+            if len(answer_this_week)==0:
+                update.message.reply_text('На этой неделе этот день уже прошел, либо нет свободных сетов')
+            else:
+                update.message.reply_text('Вот что есть на этой неделе в выбранный день')
+                for item in answer_this_week:
+                    update.message.reply_text(item)
+        else:
+            answer_next_week = get_info_next_week(chosen_room[0], chosen_day[0])
+            if len(answer_next_week) == 0:
+                update.message.reply_text('Свободных сетов нет, попробуй другой день:()')
+            else:
+                update.message.reply_text('Вот что есть на следующей неделе в этот день:')
+                for item in answer_next_week:
+                    update.message.reply_text(item)
 
 
 def main():
-<<<<<<< HEAD
-    load_dotenv()
-    mybot = Updater(os.getenv('Test_API_KEY'), request_kwargs=PROXY, use_context=True)
-=======
-    mybot = Updater(settings.API_KEY, request_kwargs=PROXY, use_context=True)
->>>>>>> 4acad1db3a0b631a2b391011199bb38f0fc7eec9
+    mybot = Updater(settings.Test_API_KEY, request_kwargs=PROXY, use_context=True)
 
     dp = mybot.dispatcher
 
     dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("choose_room", choose_room))
     dp.add_handler(CommandHandler("choose_day", choose_day))
     dp.add_handler(CommandHandler("show_results", show_time))
+    dp.add_handler(CommandHandler("choose_week", choose_week))
     dp.add_handler(CallbackQueryHandler(choice))
     
     mybot.start_polling()
