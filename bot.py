@@ -20,6 +20,7 @@ def start(update,context):
     text = 'Привет {}! Это бот, который показывает тебе свободные слоты по времени в студии Чайка. Для начала используй команду /choose_week чтобы выбрать неделю. С помощью команды /choose_room выбирай репетиционную комнату. С помощью команды /choose_day выбирай день. И команда /show_results покажет тебе свободные сеты на текущую и следующую недели!)'.format(update.message.chat.first_name)
     command_keyboard = ReplyKeyboardMarkup([['/choose_week'],['/choose_room'],['/choose_day'],['/show_results'], ['/help'] ])
     update.message.reply_text(text, reply_markup=command_keyboard)
+    logging.info("User: {}, Chat id: {}, Message: {}".format(update.message.chat.username,update.message.chat.id,update.message.text))
 
 def help(update,context):
     text = 'Привет {}! Это бот, который показывает тебе свободные слоты по времени в студии Чайка. Для начала используй команду /choose_week чтобы выбрать неделю. С помощью команды /choose_room выбирай репетиционную комнату. С помощью команды /choose_day выбирай день. И команда /show_results покажет тебе свободные сеты на текущую и следующую недели!)'.format(update.message.chat.first_name)
