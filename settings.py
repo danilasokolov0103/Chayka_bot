@@ -9,4 +9,3 @@ chaika_address = os.getenv('chaika_address')
 redis_url = os.getenv('redis_url')
 
 
-load_dotenv()
