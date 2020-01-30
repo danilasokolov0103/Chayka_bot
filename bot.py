@@ -81,7 +81,7 @@ def choice(update, context):
             chosen_week.append(query.data)
             query.edit_message_text(text="Ты выбрал: {}".format(chosen_week[0]))
     else:
-        chosen_week.clear()
+        None
             
 
 
@@ -93,6 +93,7 @@ def show_time(update,context):
             update.message.reply_text('На этой неделе этот день уже прошел, либо нет свободных сетов, вот что есть на следующей неделе в этот день:')
             for item in answer_next_week:
                 update.message.reply_text(item)
+            update.message.reply_text('Забронировать сеты можно на сайте ' + settings.chaika_address)
         else:
             update.message.reply_text('Вот что есть на этой неделе:')
             for item in answer_this_week:
@@ -100,6 +101,7 @@ def show_time(update,context):
             update.message.reply_text('Вот что есть на следующей неделе:')
             for item in answer_next_week:
                 update.message.reply_text(item)
+            update.message.reply_text('Забронировать сеты можно на сайте ' + settings.chaika_address)
     else:
         if chosen_week[0] == 'Текущая неделя':
             answer_this_week = get_info_this_week(chosen_room[0],chosen_day[0])
@@ -109,6 +111,8 @@ def show_time(update,context):
                 update.message.reply_text('Вот что есть на этой неделе в выбранный день')
                 for item in answer_this_week:
                     update.message.reply_text(item)
+                update.message.reply_text('Забронировать сеты можно на сайте ' + settings.chaika_address)
+            chosen_week.clear()
         else:
             answer_next_week = get_info_next_week(chosen_room[0], chosen_day[0])
             if len(answer_next_week) == 0:
@@ -117,6 +121,8 @@ def show_time(update,context):
                 update.message.reply_text('Вот что есть на следующей неделе в этот день:')
                 for item in answer_next_week:
                     update.message.reply_text(item)
+                update.message.reply_text('Забронировать сеты можно на сайте ' + settings.chaika_address)
+            chosen_week.clear()
 
 
 def main():
