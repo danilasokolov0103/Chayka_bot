@@ -10,32 +10,66 @@ from creating_db import schedule_db
 from creating_db import Schedule
 from creating_db import add_to_db
 from creating_db import delete_expired_data
+from creating_db import get_log
 import time
 from time import mktime
 import re
 import settings
+import chromedriver_binary
+import logging
+
+
+def create_logger():
+    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
+    level = logging.INFO,
+    filename ='parser.log'
+    )
 
 
 
-def get_info():
+def get_info_this_week(week):
+
     error = 0
     while error < 11:
         chrome_options = Options()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
-        browser = webdriver.Chrome(executable_path=settings.chrome_path,options=chrome_options)
+        chrome_options.add_argument("window-size=1400,2100") 
+        chrome_options.add_argument('--disable-gpu')
+        browser = webdriver.Chrome(options=chrome_options)
         browser.get(settings.chaika_address)
         try:
             element = WebDriverWait(browser, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "room1"))
             )
             error == 12
-            browser.find_element_by_class_name("nav_next").click()
+            if week == 'this_week':
+                week_description = 'Текущая неделя'
+            if week == 'next_week':
+                browser.find_element_by_class_name("nav_next").click()
+                element = WebDriverWait(browser, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "nav_prev"))
+                )
+                week_description = 'Следующая неделя'
+            '''if week == '2_weeks_after':
+                browser.find_element_by_class_name("nav_next").click()
+                time.sleep(1)
+                browser.find_element_by_class_name("nav_next").click()
+                time.sleep(1)
+                week_description = 'Через 2 недели'
+            if week == '3_weeks_after':
+                browser.find_element_by_class_name("nav_next").click()
+                time.sleep(1)
+                browser.find_element_by_class_name("nav_next").click()
+                time.sleep(1)
+                browser.find_element_by_class_name("nav_next").click()
+                time.sleep(1)
+                week_description = 'Через 3 недели'''
             html = browser.page_source
             soup = BeautifulSoup(html, 'html.parser')
                 
-            return soup
+            return soup , week_description
         except(WebDriverException, AttributeError,TypeError):
             error += 1
             if error == 10:
@@ -45,7 +79,10 @@ def get_info():
             return False
 
 
-def get_room_schedule(soup, room_number, room_number_parsing, sec_since_epoch):
+
+
+
+def get_room_schedule(soup, room_number, room_number_parsing, sec_since_epoch, week_description):
     time_now = datetime.now().strftime('%Y-%m-%d %H:%M')
     room_number = str(room_number)
     room_tag = soup.find(class_=str(room_number_parsing))  # находим нашу комнату
@@ -53,7 +90,6 @@ def get_room_schedule(soup, room_number, room_number_parsing, sec_since_epoch):
         room_tag_exception = soup.find(class_=str(room_number_parsing))
     else:
         room_tag_exception = soup.find(class_=str(room_number_parsing).replace(str(room_number_parsing[4]),str(int(str(room_number_parsing[4])) - 1)))
-    schedule_list = []
     tr_tag = (room_tag.find('tbody')).find_all('tr')  # ищем все тэги 'tr' 
     date_number = room_tag_exception.find('tr')
     date_number.find_all(class_ = 'toprow')
@@ -75,18 +111,9 @@ def get_room_schedule(soup, room_number, room_number_parsing, sec_since_epoch):
             day_of_week = every_td.get('data-wday')
             day_format = day_of_week.replace('<span>', '')  #избавляемся от лишнего текста 
             day_of_week_final_format = day_format.replace('</span>', '') # А это день недели
-            info = {
-                    'room': room_number,
-                    'time': time_list,
-                    'status': status,
-                    'day': day,
-                    'parsing time': time_now,
-                    'day_of_week': day_of_week_final_format,
-                    'date': date
-                    }
-            add_to_db(room_number, time_list[0], status[0], day_of_week_final_format, date, time_now, sec_since_epoch)
-            schedule_list.append(info)
-    return schedule_list
+            add_to_db(room_number, time_list[0], status[0], day_of_week_final_format, date, time_now, sec_since_epoch , week_description)
+            delete_expired_data()        
+ 
 
 def get_room_info(soup):  #Парсим все комнаты и их описание
     number_rooms_list = []
@@ -110,31 +137,20 @@ def get_room_info(soup):  #Парсим все комнаты и их описа
     return rooms_dict
 
 
-
 def get_all_rooms_schedule():  #Выводим данные всех комнат вместе
-    html = get_info()
-    rooms = get_room_info(html)
+    weeks_list = ['this_week','next_week']  #,'2_weeks_after','3_weeks_after']
     dt = datetime.now()
-    info_list = []
     sec_since_epoch = int (mktime(dt.timetuple()) + dt.microsecond/1000000)
-    for room1, room2 in rooms.items():
-        get_room_schedule(html, room2, room1,sec_since_epoch)
-        info_list +=get_room_schedule(html, room2, room1,sec_since_epoch)
+    for week in weeks_list:
+        html, week_description = get_info_this_week(week)
+        rooms = get_room_info(html)
+        
+        for room_number_parsing, room_number in rooms.items():
+            get_room_schedule(html, room_number, room_number_parsing, sec_since_epoch, week_description)
     delete_expired_data()
-    f = open("info.txt","w")
-    f.write("Количество элементов " +str(len(info_list)))
-    f.write("\n")
-    f.write(str(dt))
-    f.write("\n")
-    f.close()
-    data = open("parsing_data","w")
-    for i in info_list:
-        data.write(i)
-    data.close
     
-
-
+ 
+    
 
 if __name__ == "__main__":
     get_all_rooms_schedule()
-    

@@ -1,12 +1,10 @@
 do_all:
-		make -j 4 packages redis celery_beat celery_worker bot
-packages:	
-		pip3 install -r requirements.txt
-redis:
-		redis-server
+		make -j 2 celery_beat celery_worker 
+#redis:
+#		redis-server
 celery_beat:
-			celery -A periodic beat
+			celery -A periodic beat -l info --pidfile=/tmp/celeryd.pid
 celery_worker:
-			celery -A periodic worker
-bot:
-	python bot.py
+			celery -A periodic worker 
+#bot:
+#	python bot.py

@@ -17,13 +17,12 @@ PROXY = {'proxy_url': 'socks5h://t1.learn.python.ru:1080',
     'urllib3_proxy_kwargs': {'username': settings.PROXY_username, 'password': settings.PROXY_password}}
 
 def start(update,context):
-    text = 'Привет {}! Это бот, который показывает тебе свободные слоты по времени в студии Чайка. Для начала используй команду /choose_week чтобы выбрать неделю. С помощью команды /choose_room выбирай репетиционную комнату. С помощью команды /choose_day выбирай день. И команда /show_results покажет тебе свободные сеты на текущую и следующую недели!)'.format(update.message.chat.first_name)
-    command_keyboard = ReplyKeyboardMarkup([['/choose_week'],['/choose_room'],['/choose_day'],['/show_results'], ['/help'] ])
+    text = 'Привет {}! Это бот, который показывает тебе свободные слоты по времени в студии Чайка. С помощью команды /choose_room выбирай репетиционную комнату. С помощью команды /choose_day выбирай день. И команда /show_results покажет тебе свободные сеты на текущую и следующую недели!)'.format(update.message.chat.first_name)
+    command_keyboard = ReplyKeyboardMarkup([['/choose_room'],['/choose_day'],['/choose_week'], ['/show_results'], ['/help'] ])
     update.message.reply_text(text, reply_markup=command_keyboard)
-    logging.info("User: {}, Chat id: {}, Message: {}".format(update.message.chat.username,update.message.chat.id,update.message.text))
 
 def help(update,context):
-    text = 'Привет {}! Это бот, который показывает тебе свободные слоты по времени в студии Чайка. Для начала используй команду /choose_week чтобы выбрать неделю. С помощью команды /choose_room выбирай репетиционную комнату. С помощью команды /choose_day выбирай день. И команда /show_results покажет тебе свободные сеты на текущую и следующую недели!)'.format(update.message.chat.first_name)
+    text = 'Привет {}! Это бот, который показывает тебе свободные слоты по времени в студии Чайка. С помощью команды /choose_room выбирай репетиционную комнату. С помощью команды /choose_day выбирай день. И команда /show_results покажет тебе свободные сеты на текущую и следующую недели!)'.format(update.message.chat.first_name)
     update.message.reply_text(text)
 
 def choose_room(update, context):
@@ -57,7 +56,7 @@ def choose_week(update, context):
     keyboard = [[InlineKeyboardButton("Текущая неделя", callback_data='Текущая неделя'),
                  InlineKeyboardButton("Следующая неделя", callback_data='Следующая неделя')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text('Пока можешь выбрать из двух недель, но мы усердно работаем над добавлением новых!)', reply_markup = reply_markup)
+    update.message.reply_text('ну если хочешь, можешь выбраь неделю)', reply_markup = reply_markup)
 
 chosen_room = []
 chosen_day = []

@@ -15,3 +15,7 @@ celerybeat-schedule.db
 dump.rdb
 .env
 info.txt
+celery.logs
+logs.txt
+parser.log
+periodic
