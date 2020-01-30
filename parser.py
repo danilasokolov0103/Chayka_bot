@@ -27,7 +27,7 @@ def create_logger():
 
 
 
-def get_info():
+def get_info_this_week(week):
 
     error = 0
     while error < 11:
@@ -44,23 +44,45 @@ def get_info():
                 EC.presence_of_element_located((By.CLASS_NAME, "room1"))
             )
             error == 12
+            if week == 'this_week':
+                week_description = 'Текущая неделя'
+            if week == 'next_week':
+                browser.find_element_by_class_name("nav_next").click()
+                element = WebDriverWait(browser, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "nav_prev"))
+                )
+                week_description = 'Следующая неделя'
+            '''if week == '2_weeks_after':
+                browser.find_element_by_class_name("nav_next").click()
+                time.sleep(1)
+                browser.find_element_by_class_name("nav_next").click()
+                time.sleep(1)
+                week_description = 'Через 2 недели'
+            if week == '3_weeks_after':
+                browser.find_element_by_class_name("nav_next").click()
+                time.sleep(1)
+                browser.find_element_by_class_name("nav_next").click()
+                time.sleep(1)
+                browser.find_element_by_class_name("nav_next").click()
+                time.sleep(1)
+                week_description = 'Через 3 недели'''
             html = browser.page_source
             soup = BeautifulSoup(html, 'html.parser')
-            logging.info("Selenium is working fine")
                 
-            return soup
-        except(WebDriverException, AttributeError, TypeError):
+            return soup , week_description
+        except(WebDriverException, AttributeError,TypeError):
             error += 1
             if error == 10:
                 print("Не получается получить javascript")
-                logging.info('Problems with getting javascript')
             else:
                 print('Network Error')
-                logging.info('Connection problems')
             return False
 
 
-def get_room_schedule(soup, room_number, room_number_parsing, sec_since_epoch):
+
+
+
+def get_room_schedule(soup, room_number, room_number_parsing, sec_since_epoch, week_description):
     time_now = datetime.now().strftime('%Y-%m-%d %H:%M')
     room_number = str(room_number)
     room_tag = soup.find(class_=str(room_number_parsing))  # находим нашу комнату
@@ -70,7 +92,7 @@ def get_room_schedule(soup, room_number, room_number_parsing, sec_since_epoch):
         room_tag_exception = soup.find(class_=str(room_number_parsing).replace(str(room_number_parsing[4]),str(int(str(room_number_parsing[4])) - 1)))
     tr_tag = (room_tag.find('tbody')).find_all('tr')  # ищем все тэги 'tr' 
     date_number = room_tag_exception.find('tr')
-    date_number.find_all(class_='toprow')
+    date_number.find_all(class_ = 'toprow')
     day_list = [i.get_text() for i in date_number]
     date_list = day_list[1:]
     for every_tr in tr_tag:
@@ -78,22 +100,22 @@ def get_room_schedule(soup, room_number, room_number_parsing, sec_since_epoch):
         time = every_tr.find_all('th', class_='leftcol')  # находим время репетиций 
         time_list = [i.get_text() for i in time]        # и делаем список времени
 
-        for every_td, every_day in zip(td_tag, date_list):
+        for every_td,every_day in zip(td_tag,date_list):
             status = every_td.get('class')
             if len(status) == 0 :
                 status.append('free')
-    
             day = every_day
-            day = day.replace('.', ' ')
+            day = day.replace('.',' ')
             day = day.split()
-            date = day[0] + " " + day[1]  # Это дата 
+            date = day[0]+ " " +day[1] # Это дата 
             day_of_week = every_td.get('data-wday')
-            day_format = day_of_week.replace('<span>', '')   #избавляемся от лишнего текста 
-            day_of_week_final_format = day_format.replace('</span>', '')  # А это день недели
-            add_to_db(room_number, time_list[0], status[0], day_of_week_final_format, date, time_now, sec_since_epoch)
-   
+            day_format = day_of_week.replace('<span>', '')  #избавляемся от лишнего текста 
+            day_of_week_final_format = day_format.replace('</span>', '') # А это день недели
+            add_to_db(room_number, time_list[0], status[0], day_of_week_final_format, date, time_now, sec_since_epoch , week_description)
+            delete_expired_data()        
+ 
 
-def get_room_info(soup):   #Парсим все комнаты и их описание
+def get_room_info(soup):  #Парсим все комнаты и их описание
     number_rooms_list = []
     description_list = []
     n = -1
@@ -115,27 +137,20 @@ def get_room_info(soup):   #Парсим все комнаты и их опис�
     return rooms_dict
 
 
-
-def get_all_rooms_schedule():   #Выводим данные всех комнат вместе
-
-    create_logger()
-    html = get_info()
-    rooms = get_room_info(html)
+def get_all_rooms_schedule():  #Выводим данные всех комнат вместе
+    weeks_list = ['this_week','next_week']  #,'2_weeks_after','3_weeks_after']
     dt = datetime.now()
-    
-    sec_since_epoch = int(mktime(dt.timetuple()) + dt.microsecond/1000000)
-    for room1, room2 in rooms.items():
-        get_room_schedule(html, room2, room1, sec_since_epoch)
-    logging.info('Parsed to DataBase')
+    sec_since_epoch = int (mktime(dt.timetuple()) + dt.microsecond/1000000)
+    for week in weeks_list:
+        html, week_description = get_info_this_week(week)
+        rooms = get_room_info(html)
+        
+        for room_number_parsing, room_number in rooms.items():
+            get_room_schedule(html, room_number, room_number_parsing, sec_since_epoch, week_description)
     delete_expired_data()
-    logging.info('Deleted expired data')
-
-    logging.info('Number of rows in database = '+get_log())
-    logging.info('Parsing time ---- '+str(dt))
-  
-
-
+    
+ 
+    
 
 if __name__ == "__main__":
     get_all_rooms_schedule()
-    

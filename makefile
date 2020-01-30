@@ -7,4 +7,4 @@ celery_beat:
 celery_worker:
 			celery -A periodic worker 
 #bot:
-	#python bot.py
+#	python bot.py
