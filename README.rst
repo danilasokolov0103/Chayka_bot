@@ -2,35 +2,25 @@ Chayka Bot
 ==========
 Телеграм бот для онлайн отслеживания расписания репетиционных комнат 
 
-Установка 
-----------
-Для запуска необходимо установить все библиотеки из requirements.txt
-.... code-block:: text
-      pip install -r requirements.txt
-Установить redis-server c помощью команд ниже:
-.. code-block:: text
-Устанока redis-server
-.. code-block:: text
-    $ brew install redis
-После установки его нужно запустить командой 
-.. code-block:: text
-    $ redis-server
-Далее открываем еще 2 окна терминала и запускаем сначала celery beat  
-.. code-block:: text
-    celery -A periodic beat
-Потом celery worker 
-.. code-block:: text
-    celery -A periodic worker
+Настройка и запуск
+------------------
+Настройка 
+---------
+Для начала создайте .env файл, где будут лежать все настройки( токен для бота , адрес сайта ......) для программы 
 
-Настройка
---------- 
-Также нужно скачать Chromedriver локально и указать его путь в parser.py
+Требуемые значения можно посмотреть в файле settings.py
+
+Запуск 
+---------
+
+Для начала нудно установить Docker  и Docker-compose  
 .. code-block:: text
-    browser = webdriver.Chrome(executable_path='Путь к Chromedirver',options=chrome_options)
-Ниже ссылка на сам драйвер
+    brew install docker docker-compose docker-machine xhyve docker-machine-driver-xhyve
 
-https://chromedriver.chromium.org/downloads
+Для запуска программы нужно сначала собрать все Docker контейнеры
+.. code-block:: text
+    docker-compose build
 
-Для работы с БД нужно установить DB Browser for SQLite:
-
-https://sqlitebrowser.org/
+Для запуска программы нужно сначала собрать все Docker контейнеры
+.. code-block:: text
+    docker-compose up
