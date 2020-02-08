@@ -13,16 +13,13 @@ Chayka Bot
 ---------
 
 Для начала нужно установить Docker и Docker-compose  
-
 .. code-block:: text
     brew install docker docker-compose docker-machine xhyve docker-machine-driver-xhyve
 
 Для запуска программы нужно сначала собрать все Docker контейнеры
-
 .. code-block:: text
     docker-compose build
 
 Для запуска программы нужно сначала собрать все Docker контейнеры
-
 .. code-block:: text
     docker-compose up
