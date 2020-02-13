@@ -27,5 +27,5 @@ services:
        - data-volume:/bot
 volumes:
  data-volume: 
-    external: true
+    #external: true
    

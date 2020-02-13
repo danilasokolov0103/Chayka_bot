@@ -19,3 +19,5 @@ celery.logs
 logs.txt
 parser.log
 periodic
+test.py
+db_user_choice.py
