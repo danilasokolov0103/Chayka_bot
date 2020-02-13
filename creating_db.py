@@ -100,3 +100,8 @@ def get_log():
     f.write(str(num))
     f.close
     return(str(num))
+
+def get_number_of_rows():
+    rows = session.query(Schedule).count()
+    rows = int(rows)
+    return rows
