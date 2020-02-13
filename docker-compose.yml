@@ -5,7 +5,7 @@ services:
   parser:
     build: 
       context: ./
-    command: bash -c "make"
+    #command: bash -c "make"
     volumes:
       - data-volume:/parser
     depends_on:   
@@ -27,5 +27,5 @@ services:
        - data-volume:/bot
 volumes:
  data-volume: 
-    #external: true
+    external: true
    
