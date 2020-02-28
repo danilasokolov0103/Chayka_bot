@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Sequence
 from sqlalchemy.orm import sessionmaker
@@ -89,17 +89,6 @@ def get_info_next_week(rep_room_number, user_day, user_week='Следующая 
         data_next_week.append(room.time)
     return (data_next_week)
 
-
-def get_log():
-    f = open("logs.txt", "w")
-    num = 0
-    for i in db_elements:
-        f.write(str(i))
-        f.write("/n")
-        num += 1
-    f.write(str(num))
-    f.close
-    return(str(num))
 
 def get_number_of_rows():
     rows = session.query(Schedule).count()
